@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>1</title>
+
+</head>
+<body>
+<img id="s_pic" src="images/1.jpg" style="display:inline;position:absolute;z-index:88;" />
+<div id="aa" style="width:500px;height:500px;background-color:green;display:inline-block;"></div>
+<div style="display:inline;">
+<input type="button" value="start" onclick="start()" />
+</div>
+
+
+<script type="text/javascript">
+window.onload=function(){
+setTimeout("picCls()",3000);
+}
+function picCls(){
+var sPic=document.getElementById("s_pic");
+sPic.style.display="none";
+}
+var myDiv=document.createElement("canvas");
+myDiv.width=500;
+myDiv.height=500;
+var aaa=document.getElementById("aa");
+aaa.appendChild(myDiv);
+var context=myDiv.getContext("2d");
+context.fillRect(0,0,10,10);
+context.fillRect(10,0,10,10);
+context.fillRect(20,0,10,10);
+
+var death=true,isFirst=true;
+var count=3;
+var direction=2,tempDir=2;
+var xFood,yFood;
+var showApple,myTimer,firstApple;
+var numS=new Array(50);
+var jlS=new Array(50);
+for(var i=0;i<50;i++)
+{
+numS[i]=new snake(0,0);
+jlS[i]=new snake(0,0);
+}
+
+function initial()
+{
+if(death)
+{
+death=false;
+count=3;
+direction=2,tempDir=2;
+context.fillRect(0,0,10,10);
+context.fillRect(10,0,10,10);
+context.fillRect(20,0,10,10);
+numS[0]=new snake(20,0);
+numS[1]=new snake(10,0);
+numS[2]=new snake(0,0);
+}
+else
+{
+clearInterval(myTimer);
+clearTimeout(showApple);
+death=true;
+initial();
+}
+}
+drawApple(false);
+clearTimeout(showApple);
+
+function start()
+{
+
+if(!isFirst)
+{
+context.clearRect(0,0,500,500);
+drawApple(false);
+clearTimeout(showApple);
+isFirst=true;
+}
+initial();
+if(isFirst)
+{
+isFirst=false;
+firstApple=setTimeout("clsApple()",9000);
+}
+myTimer=setInterval("moveS(direction)",100);
+}
+
+window.addEventListener("keypress",function(){keyboard(event)},false);
+function keyboard(e){
+var keynum=window.event?e.keyCode:e.which;
+
+switch(keynum)
+{
+	case 119:
+	
+	direction=1
+	
+	break;
+	case 100:
+
+	direction=2;
+	break;
+	case 115:
+
+	direction=3;
+	break;
+	case 97:
+
+	direction=4;
+	break;
+
+}
+}
+
+function snake(x,y)
+{
+this.xPos=x;
+this.yPos=y;
+}
+
+
+
+function drawS(num)
+{
+for (var i=0;i<num;i++)
+{
+context.fillRect(numS[i].xPos,numS[i].yPos,10,10);
+numS[i+1].xPos=jlS[i].xPos;
+numS[i+1].yPos=jlS[i].yPos;
+}
+context.clearRect(jlS[count-1].xPos,jlS[count-1].yPos,10,10);
+}
+
+function jsSnake(num)
+{
+for (var i=0;i<num;i++)
+{
+jlS[i].xPos=numS[i].xPos;
+jlS[i].yPos=numS[i].yPos;
+}
+}
+
+function moveS(dire)
+{
+jsSnake(count);
+if(Math.abs(dire-tempDir)==2)
+{dire=tempDir;}
+switch(dire)
+{	
+case 1:
+	numS[0].yPos-=10;
+	tempDir=1;
+	break;
+case 2:
+	numS[0].xPos+=10;
+	tempDir=2;
+	break;
+case 3:
+	numS[0].yPos+=10;
+	tempDir=3;
+	break;
+case 4:
+	numS[0].xPos-=10;
+	tempDir=4;
+	break;
+}
+death=isDead();
+
+if(death)
+{return;}
+
+isEat();
+
+drawS(count);
+
+}
+
+function isDead()
+{
+if(numS[0].xPos<0||numS[0].xPos>490||numS[0].yPos<0||numS[0].yPos>490)
+{
+alert("Game over!")
+clearInterval(myTimer);
+clearTimeout(showApple);
+clearTimeout(firstApple);
+return true;
+}
+else
+{
+for(var i=3;i<count;i+=2)
+
+{	
+	
+	if(numS[0].xPos==jlS[i].xPos&&numS[0].yPos==jlS[i].yPos)
+{
+alert("Game over!");
+clearInterval(myTimer);
+clearTimeout(showApple);
+clearTimeout(firstApple);
+return true;
+}
+
+}
+return false;
+}
+}
+
+function isEat()
+
+{
+
+if(numS[0].xPos==xFood&&numS[0].yPos==yFood)
+{
+	count+=1;
+	clearTimeout(showApple);
+	clearTimeout(firstApple);
+	clsApple();
+}
+}
+
+function drawApple(d)
+{
+var tempB=false;
+if(!d)
+{
+do
+{
+
+var tempx=Math.floor(Math.random()*50);
+var tempy=Math.floor(Math.random()*50);
+xFood=tempx*10;
+yFood=tempy*10;
+for(var i=0;i<count;i++)
+{
+if(xFood==jlS[i].xPos&&yFood==jlS[i].yPos)
+{
+tempB=true;
+break;
+}
+else
+{
+tempB=false;
+}
+}
+}while(tempB);
+
+context.fillRect(xFood,yFood,10,10);
+showApple=setTimeout("clsApple()",9000);
+}
+else
+{
+
+context.fillRect(xFood,yFood,10,10);
+}
+}
+
+function clsApple()
+{
+
+context.clearRect(xFood,yFood,10,10);
+
+drawApple(death);
+}
+
+
+</script>
+
+</body>
+</html>
